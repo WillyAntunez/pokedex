@@ -35,7 +35,7 @@ body {
 
 /* header */
 .header {
-    height: 56px;
+    height: 44.8px;
     width: 100%;
     background-color: var(--primary-red);
     border-bottom: 3px solid var(--black);
@@ -45,21 +45,21 @@ body {
 .header__container {
     display: grid;
     margin: 0 auto;
-    max-width: 1250px;
-    padding: 0 10px;
+    max-width: 1000px;
+    padding: 0 8px;
     grid-template-columns: auto 1fr;
 }
 
 .header__pokeball {
     position: relative;
-    width: 57px;
-    height: 57px;
-    margin-right: 9px;
+    width: 45.6px;
+    height: 45.6px;
+    margin-right: 7.2px;
 }
 
 .header__pokeball img {
     position: absolute;
-    top: 4px;
+    top: 3.2px;
     width: 100%;
 }
 
@@ -73,14 +73,14 @@ body {
 .header__text {
     display: block;
     color: var(--white);
-    font-size: 1.3rem;
+    font-size: 1.04rem;
     font-weight: 400;
     margin: 0;
-    padding-top: 4px;
+    padding-top: 3.2px;
 }
 
 .header__text--title {
-    font-size: 1.7rem;
+    font-size: 1.36rem;
 }
 
 
@@ -89,12 +89,12 @@ body {
     display: grid;
     grid-template-columns: auto 1fr;
     margin: 0 auto;
-    max-width: 1100px;
+    max-width: 880px;
     margin-top: 20px;
 }
 
 .pokemon .pokemon__text {
-    font-size: 1.2rem;
+    font-size: .971rem;
 }
 
 /* POKEMON: SCREEN */
@@ -103,9 +103,9 @@ body {
     position: relative;
     justify-content: center;
     align-items: center;
-    width: 319px;
-    height: 301.5px;
-    margin-right: 10px;
+    width: 258.16px;
+    height: 244px;
+    margin-right: .7rem;
     background-image: url(./assets/svg/screen.svg);
     background-repeat: no-repeat;
     background-size: cover;
@@ -130,7 +130,7 @@ body {
     background-repeat: no-repeat;
     background-size: 100%;
     width: 100%;
-    height: 268px;
+    height: 214.4px;
     margin-right: 1px;
     filter: drop-shadow(var(--shadow-medium));
 }
@@ -138,10 +138,10 @@ body {
 
 .pokemon .pokemon__info {
     display: grid;
-    padding: 27px 44px;
+    padding: 21.6px 35.2px;
     width: 100%;
     height: 100%;
-    max-height: 190px;
+    max-height: 152px;
     grid-template-columns: repeat(3, 1fr);
 }
 
@@ -154,7 +154,7 @@ body {
 }
 
 .pokemon .pokemon__info .pokemon__text strong {
-    margin-right: 1.5rem;
+    margin-right: 1.2rem;
     margin-bottom: .2rem;
 }
 
@@ -181,17 +181,17 @@ body {
 }
 
 .pokemon .pokemon__stat {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .pokemon .pokemon__stat .pokemon__text {
-    font-size: 1rem;
+    font-size: .8rem;
 }
 
 .pokemon .pokemon__stat .pokemon__bar {
     background-color: var(--light-gray);
     border: 2px solid var(--black);
-    height: 20px;
+    height: 16px;
     width: 100%;
 }
 
@@ -204,12 +204,12 @@ body {
 /* SEARCH */
 .search {
     margin: 0 auto;
-    max-width: 1100px;
-    margin-top: 20px;
+    max-width: 880px;
+    margin-top: 13.6px;
 }
 
 .search .search__text--title {
-    font-size: 1.7rem;
+    font-size: 1.36rem;
     text-align: center;
 }
 
@@ -217,7 +217,7 @@ body {
     border: 1px solid black;
     box-shadow: var(--shadow-medium);
     font-family: var(--font-gaming);
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     height: 42px;
     outline: none;
     text-align: center;
@@ -237,9 +237,9 @@ body {
     margin: 0 auto;
     margin-top: 15px;
     background-color: var(--white);
-    max-width: 1100px;
+    max-width: 880px;
     box-shadow: var(--shadow-medium);
-    padding: 12px;
+    padding: 9.6px;
 }
 
 .filters .filters__button--showhide {
@@ -249,41 +249,41 @@ body {
 }
 
 .filters .filters__text--highlighted {
-    font-size: 1.3rem;
+    font-size: 1.04rem;
     text-decoration: underline;
-    margin-right: 4px;
+    margin-right: .32rem;
 }
 
 .filters .filters__triangle {
     width: 0;
     height: 0;
     background-color: transparent;
-    border-left: 1.3rem solid transparent;
-    border-right: 1.3rem solid transparent;
-    border-bottom: 1.5rem solid var(--black);
+    border-left: 1.04rem solid transparent;
+    border-right: 1.04rem solid transparent;
+    border-bottom: 1.2rem solid var(--black);
 }
 
 .filters .filters__form {
     display: flex;
     justify-content: center;
-    margin-top: 8px;
+    margin-top: .6rem;
 }
 
 .filters .filters__form>div:nth-child(1) {
-    margin-right: 36px;
+    margin-right: 2.88rem;
 }
 
 .filters .filters__filter {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-width: 383px;
-    margin-bottom: 1.1rem;
+    min-width: 306.4px;
+    margin-bottom: 0.88rem;
     position: relative;
 }
 
 .filters .filters__filter .filters__text--label {
-    font-size: 1.2rem;
+    font-size: 0.88rem;
 }
 
 .filters .filters__filter .filters__select {
@@ -292,7 +292,7 @@ body {
     font-family: var(--font-gaming);
     color: var(--primary-red);
     border: 1px solid var(--black);
-    height: 2rem;
+    height: 1.6rem;
     padding: .2rem;
 
     outline: none;
@@ -321,7 +321,7 @@ body {
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    padding: .8rem .8rem;
+    padding: .6rem .6rem;
 }
 
 .filters .filters__clear .filters__text {
@@ -330,9 +330,9 @@ body {
 
 /* Order */
 .order {
-    max-width: 1100px;
+    max-width: 880px;
     margin: 0 auto;
-    margin-top: 2rem;
+    margin-top: 1.6rem;
     display: flex;
     justify-content: flex-end;
 }
@@ -341,23 +341,23 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.1rem;
+    margin-bottom: .88rem;
     position: relative;
 }
 
 .order .order__container .order__text--label {
-    font-size: 1.2rem;
-    margin-right: 2rem;
+    font-size: .88rem;
+    margin-right: 1.6rem;
 }
 
 .order .order__container .order__select {
-    width: 25.3rem;
-    font-size: 1.2rem;
+    width: 20.24rem;
+    font-size: 0.96rem;
     font-family: var(--font-gaming);
     color: var(--primary-red);
     border: 1px solid var(--black);
-    height: 2rem;
-    padding: .2rem;
+    height: 1.6rem;
+    padding: .16rem;
 
 
     outline: none;
