@@ -372,3 +372,45 @@ body {
     background-position-x: 100%;
     background-position-y: -04px;
 }
+
+/* CARDS */
+.cards {
+    max-width: 880px;
+    margin: 0 auto;
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.cards .cards__container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+}
+
+.cards .cards__card {
+    width: 100%;
+    background-color: var(--white);
+    position: relative;
+    cursor: pointer;
+}
+
+.cards .cards__sprite {
+    width: 100%;
+}
+
+.cards .cards__text--name {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 400;
+    bottom: 0;
+}
+
+.cards .cards__text--id {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: .8rem .5rem;
+    font-size: 1rem;
+}
