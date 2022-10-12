@@ -33,6 +33,7 @@ body {
     font-family: var(--font-gaming);
 }
 
+
 /* header */
 .header {
     height: 44.8px;
@@ -389,6 +390,7 @@ body {
 
 .cards .cards__card {
     width: 100%;
+    height: 168px;
     background-color: var(--white);
     position: relative;
     cursor: pointer;
@@ -413,4 +415,52 @@ body {
     top: 0;
     padding: .8rem .5rem;
     font-size: 1rem;
+}
+
+/* Cards loader */
+
+.cards .cards__loader {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0 20px 0;
+}
+
+.cards .cards__loader img {
+    width: 7rem;
+    height: 7rem;
+}
+
+.cards .cards__loader .cards__text {
+    font-size: 1.2rem;
+}
+
+.cards .cards__loader .cards__text--typing {
+    display: inline-block;
+    border-right: 4px solid;
+    white-space: nowrap;
+    width: 4ch;
+
+    animation: typing 2.5s steps(4),
+        blink .5s infinite step-end alternate;
+    animation-iteration-count: infinite;
+    overflow: hidden;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+/* Hidden */
+.hidden {
+    display: none !important;
 }

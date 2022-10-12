@@ -64,12 +64,15 @@ const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
 };
 
 const showMorePokemons = async (pokemonsArray, quantity) => {
-    loadingCards = true;
     //TODO: Agregar aquí funcionalidad para mostrar loader
+    const $cardsLoader = document.getElementById('cards-loader');
 
     try {
         const $pokemonsContainer =
             document.getElementById('pokemons-container');
+
+        loadingCards = true;
+        $cardsLoader.classList.remove('hidden');
 
         let startIndex = pokemonsLoaded.nextIndex;
         let endIndex = pokemonsLoaded.nextIndex + quantity - 1;
@@ -79,6 +82,8 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
             startIndex,
             endIndex
         );
+
+        //FIXME: Esta funcion de arriba puede retornar un array vacio si no hay más pokemons para cargar, en ese caso, la lógica de abajo no debería ejecutarse y debería mostrarle al usuario que no hay más pokemons, hay dos posibles casos, que no hubo ninguno desde el comienzo o que ya se cargaron todos los que habian, ejecutar una validacion para ver cual es el caso y manejarlo como es debido
 
         let $newPokemonCards = '';
 
@@ -107,6 +112,7 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
         //TODO: crear aquí manejo del error al cargar las cards
     } finally {
         loadingCards = false;
+        $cardsLoader.classList.add('hidden');
         //TODO: Crear aquí funcion para quitar el loader
     }
 };
@@ -129,7 +135,6 @@ document.addEventListener('scroll', async (e) => {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight > scrollHeight - 30 && !loadingCards) {
         await showMorePokemons(allPokemons, 20);
-        console.log('carga más');
     }
 
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
