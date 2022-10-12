@@ -17,6 +17,9 @@ let pokemonsLoaded = {
     pokemons: [],
 };
 
+let loadingCards = false;
+let cardsError = false;
+
 const fetchData = async (url) => {
     const res = await fetch(url);
     const data = await res.json();
@@ -61,39 +64,51 @@ const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
 };
 
 const showMorePokemons = async (pokemonsArray, quantity) => {
-    //En esta funcion se manejara el loading y posible error, tambien si no se encuentran pokemons y si termino de mostrarlos todos
-    const $pokemonsContainer = document.getElementById('pokemons-container');
+    loadingCards = true;
+    //TODO: Agregar aquí funcionalidad para mostrar loader
 
-    let startIndex = pokemonsLoaded.nextIndex;
-    let endIndex = pokemonsLoaded.nextIndex + quantity - 1;
+    try {
+        const $pokemonsContainer =
+            document.getElementById('pokemons-container');
 
-    let newPokemons = await loadPokemons(
-        pokemonsArray.pokemons,
-        startIndex,
-        endIndex
-    );
+        let startIndex = pokemonsLoaded.nextIndex;
+        let endIndex = pokemonsLoaded.nextIndex + quantity - 1;
 
-    let $newPokemonCards = '';
+        let newPokemons = await loadPokemons(
+            pokemonsArray.pokemons,
+            startIndex,
+            endIndex
+        );
 
-    pokemonsLoaded.pokemons = [...pokemonsLoaded.pokemons, ...newPokemons];
-    pokemonsLoaded.nextIndex = endIndex + 1;
+        let $newPokemonCards = '';
 
-    let arrayLastIndex = pokemonsArray.length - 1;
-    if (arrayLastIndex < endIndex) endIndex = arrayLastIndex;
+        pokemonsLoaded.pokemons = [...pokemonsLoaded.pokemons, ...newPokemons];
+        pokemonsLoaded.nextIndex = endIndex + 1;
 
-    for (let i = startIndex; i <= endIndex; i++) {
-        let pokemon = pokemonsLoaded.pokemons[i];
+        let arrayLastIndex = pokemonsArray.length - 1;
+        if (arrayLastIndex < endIndex) endIndex = arrayLastIndex;
 
-        $newPokemonCards += `
+        for (let i = startIndex; i <= endIndex; i++) {
+            let pokemon = pokemonsLoaded.pokemons[i];
+
+            $newPokemonCards += `
             <div class="cards__card">
                 <img src="${pokemon.sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy">
                 <h3 class="cards__text cards__text--name">${pokemon.name}</h3>
                 <span class="cards__text cards__text--id">${pokemon.id}</span>
             </div>
         `;
-    }
+        }
 
-    $pokemonsContainer.innerHTML += $newPokemonCards;
+        $pokemonsContainer.innerHTML += $newPokemonCards;
+    } catch (error) {
+        console.log(error);
+        cardsError = error;
+        //TODO: crear aquí manejo del error al cargar las cards
+    } finally {
+        loadingCards = false;
+        //TODO: Crear aquí funcion para quitar el loader
+    }
 };
 
 (async () => {
@@ -107,7 +122,15 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
     }
 
     await showMorePokemons(allPokemons, 20);
-    await showMorePokemons(allPokemons, 20);
-    await showMorePokemons(allPokemons, 20);
-    await showMorePokemons(allPokemons, 20);
 })();
+
+document.addEventListener('scroll', async (e) => {
+    /* Inifinite scroll */
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight > scrollHeight - 30 && !loadingCards) {
+        await showMorePokemons(allPokemons, 20);
+        console.log('carga más');
+    }
+
+    // TODO: Agregar un boton para que se pueda volver arriba rapidamente
+});
