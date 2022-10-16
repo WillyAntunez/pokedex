@@ -419,7 +419,7 @@ body {
 
 /* Cards loader */
 
-.cards .cards__loader {
+.cards .cards__message {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -427,16 +427,17 @@ body {
     margin: 10px 0 20px 0;
 }
 
-.cards .cards__loader img {
+.cards .cards__message img {
     width: 7rem;
     height: 7rem;
 }
 
-.cards .cards__loader .cards__text {
+.cards .cards__message .cards__text {
+    margin-top: .7rem;
     font-size: 1.2rem;
 }
 
-.cards .cards__loader .cards__text--typing {
+.cards .cards__message .cards__text--typing {
     display: inline-block;
     border-right: 4px solid;
     white-space: nowrap;

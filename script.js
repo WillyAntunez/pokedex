@@ -1,6 +1,8 @@
 'use strict';
 
 const $searchInput = document.getElementById('search-input');
+const $cardsMessage = document.getElementById('cards-message');
+const $orderBySelect = document.getElementById('order-by');
 
 const pageURL = '.';
 
@@ -21,6 +23,8 @@ let pokemonsLoaded = {
     pokemons: [],
 };
 
+/* TODO: crear objeto pokemonSelected para el pokemon que actualmente se muestra en la pokedex */
+
 let loadingCards = false;
 let cardsError = false;
 
@@ -30,6 +34,7 @@ const fetchData = async (url) => {
     return data;
 };
 
+/* Obtiene datos de un pokemon en específico, recibe una url y retorna un objeto con los datos simplificados del pokemon */
 const getPokemon = async (url) => {
     const pokemon = await fetchData(url);
     return {
@@ -40,6 +45,7 @@ const getPokemon = async (url) => {
     };
 };
 
+/* Obtiene la lista inicial de nombres y urls de todos los pokemons sin filtros desde la pokeapi */
 const getAllPokemons = async (
     api = 'https://pokeapi.co/api/v2',
     limit = 100000,
@@ -52,8 +58,7 @@ const getAllPokemons = async (
     return data;
 };
 
-/* TODO: crear objeto pokemonSelected para el pokemon que actualmente se muestra en la pokedex */
-
+/* Carga los datos especificos de cada pokemon de un array de pokemons y los retorna en un nuevo array  */
 const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
     let loadedPokemons = [];
     let arrayLastIndex = pokemonsArray.length - 1;
@@ -69,6 +74,7 @@ const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
     return loadedPokemons;
 };
 
+/* Muestra pokemons (o más pokemons) en pantalla */
 const showMorePokemons = async (pokemonsArray, quantity) => {
     const $cardsLoader = document.getElementById('cards-loader');
 
@@ -106,7 +112,6 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
                 let sprite =
                     pokemon.sprite || `${pageURL}/assets/img/no-image.jpg`;
 
-                //FIXME: algunos pokemons no tienen imagen, hay que validar si no tienen imagen y usar una imagen en caso de que no la tengan
                 $newPokemonCards += `
                     <div class="cards__card">
                         <img src="${sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy">
@@ -119,25 +124,45 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
             $pokemonsContainer.innerHTML += $newPokemonCards;
         } else {
             if (pokemonsLoaded.pokemons.length === 0) {
-                console.log('no se encontraron pokemons');
+                /* Si no se encuentran pokemons */
+                $cardsMessage.innerHTML = `
+                    <img src="${pageURL}/assets/img/sad-pikachu.jpg" alt="sad pikachu">
+                    <div class="cards__text">We didn't find any pokemon :'(</div>
+                `;
+
+                $cardsMessage.classList.remove('hidden');
             } else {
-                console.log('No hay mas pokemons para cargar');
+                /* Si ya se cargaron todos los pokemons disponibles */
+                $cardsMessage.innerHTML = `
+                    <div class="cards__text">--- END ---</div>
+                `;
+
+                $cardsMessage.classList.remove('hidden');
             }
         }
     } catch (error) {
         console.log(error);
         cardsError = error;
-        //TODO: crear aquí manejo del error al cargar las cards
+
+        $cardsMessage.innerHTML = `
+                    <img src="${pageURL}/assets/img/sad-pikachu.jpg" alt="sad pikachu">
+                    <div class="cards__text">An error occurred :'(</div>
+                    <div class="cards__text">${error}</div>
+                `;
+
+        $cardsMessage.classList.remove('hidden');
     } finally {
         loadingCards = false;
         $cardsLoader.classList.add('hidden');
     }
 };
 
+/* Limpia los datos de pokemons cargados y las cards del DOM */
 const clearPokemonsLoaded = () => {
     const $pokemonsContainer = document.getElementById('pokemons-container');
 
     $pokemonsContainer.innerHTML = '';
+    $cardsMessage.classList.add('hidden');
 
     pokemonsLoaded = {
         nextIndex: 0,
@@ -153,19 +178,49 @@ const clearPokemonsLoaded = () => {
     cardsError = false;
 };
 
-/* TODO: Funcion (filterPokemons) que debe filtrar segun parametro de busqueda, filtros y ordenar los pokemons resultantes */
+/* Obtiene el array de objetos pokemons filtrados y muestra la lista inicial */
 const filterPokemons = async () => {
+    clearPokemonsLoaded();
+
     const query = $searchInput.value;
 
-    pokemonsFiltered.pokemons = allPokemons.pokemons.filter((pokemon) => {
-        if (pokemon.name.toLowerCase().startsWith(query.toLowerCase())) {
-            return true;
-        }
-    });
+    let newPokemons = [...allPokemons.pokemons];
 
+    /* Search filter */
+    if ($searchInput.value.length >= 1) {
+        newPokemons = newPokemons.filter((pokemon) => {
+            if (pokemon.name.toLowerCase().startsWith(query.toLowerCase())) {
+                return true;
+            }
+        });
+    }
+
+    /* order by */
+    if ($orderBySelect.value === 'name') {
+        newPokemons = newPokemons.sort((a, b) => {
+            if (a.name.toLowerCase() < b.name.toLowerCase()) {
+                return -1;
+            }
+            if (a.name.toLowerCase() > b.name.toLowerCase()) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+    pokemonsFiltered.pokemons = newPokemons;
     await showMorePokemons(pokemonsFiltered, 20);
 };
 
+/* Verifica si existen filtros activos */
+const areFiltersActive = () => {
+    if ($searchInput.value.length >= 1 || $orderBySelect.value === 'name') {
+        return true;
+    }
+    return false;
+};
+
+/* Función anonima que se autoejecuta solo una vez al cargar la página para mostrar los primeros pokemons */
 (async () => {
     if (localStorage.getItem('ALL_POKEMONS')) {
         allPokemons = await JSON.parse(localStorage.getItem('ALL_POKEMONS'));
@@ -180,7 +235,7 @@ const filterPokemons = async () => {
 })();
 
 document.addEventListener('scroll', async (e) => {
-    /* Inifinite scroll */
+    /* Infinite scroll */
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (
         scrollTop + clientHeight > scrollHeight - 30 &&
@@ -195,7 +250,6 @@ document.addEventListener('scroll', async (e) => {
         } else {
             await showMorePokemons(pokemonsFiltered, 20);
         }
-        /* FIXME: agregar logica para que la fuente de los pokemon varie entre all y filtered segun sea el caso */
     }
 
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
@@ -208,7 +262,19 @@ $searchInput.addEventListener('keyup', async (e) => {
         clearPokemonsLoaded();
         await showMorePokemons(allPokemons, 20);
     } else {
-        clearPokemonsLoaded();
         filterPokemons();
+    }
+});
+
+$orderBySelect.addEventListener('change', async (e) => {
+    /* si quiere ordenar por nombre o si quiere ordenar por id(default) pero quedan filtros activos */
+    if (
+        e.target.value === 'name' ||
+        (e.target.value === 'id' && areFiltersActive())
+    ) {
+        filterPokemons();
+    } else {
+        clearPokemonsLoaded();
+        await showMorePokemons(allPokemons, 20);
     }
 });

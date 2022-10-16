@@ -200,8 +200,9 @@
     <div class="order">
         <div class="order__container">
             <label for="" class="order__text order__text--label">Order by:</label>
-            <select name="" id="" class="order__select">
+            <select name="" id="order-by" class="order__select">
                 <option value="id">Id</option>
+                <option value="name">Name</option>
             </select>
         </div>
     </div>
@@ -209,9 +210,14 @@
     <div class="cards">
         <div class="cards__container" id="pokemons-container">
         </div>
-        <div class="cards__loader" id="cards-loader">
+        <div class="cards__message hidden" id="cards-loader">
             <img src="./assets/img/pokeball_loader.gif" alt="pokeball loader">
             <div class="cards__text">Cargando<span class="cards__text cards__text--typing">....</span></div>
+        </div>
+
+        <div class="cards__message hidden" id="cards-message">
+            <img src="" alt="">
+            <div class="cards__text"></div>
         </div>
     </div>
 
