@@ -1,5 +1,9 @@
 'use strict';
 
+const $searchInput = document.getElementById('search-input');
+
+const pageURL = '.';
+
 const API = 'https://pokeapi.co/api/v2';
 
 let allPokemons = {
@@ -48,6 +52,8 @@ const getAllPokemons = async (
     return data;
 };
 
+/* TODO: crear objeto pokemonSelected para el pokemon que actualmente se muestra en la pokedex */
+
 const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
     let loadedPokemons = [];
     let arrayLastIndex = pokemonsArray.length - 1;
@@ -64,7 +70,6 @@ const loadPokemons = async (pokemonsArray, startIndex, endIndex) => {
 };
 
 const showMorePokemons = async (pokemonsArray, quantity) => {
-    //TODO: Agregar aquí funcionalidad para mostrar loader
     const $cardsLoader = document.getElementById('cards-loader');
 
     try {
@@ -83,29 +88,42 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
             endIndex
         );
 
-        //FIXME: Esta funcion de arriba puede retornar un array vacio si no hay más pokemons para cargar, en ese caso, la lógica de abajo no debería ejecutarse y debería mostrarle al usuario que no hay más pokemons, hay dos posibles casos, que no hubo ninguno desde el comienzo o que ya se cargaron todos los que habian, ejecutar una validacion para ver cual es el caso y manejarlo como es debido
+        if (newPokemons.length > 0) {
+            let $newPokemonCards = '';
 
-        let $newPokemonCards = '';
+            pokemonsLoaded.pokemons = [
+                ...pokemonsLoaded.pokemons,
+                ...newPokemons,
+            ];
+            pokemonsLoaded.nextIndex = endIndex + 1;
 
-        pokemonsLoaded.pokemons = [...pokemonsLoaded.pokemons, ...newPokemons];
-        pokemonsLoaded.nextIndex = endIndex + 1;
+            let arrayLastIndex = pokemonsArray.pokemons.length - 1;
+            if (arrayLastIndex < endIndex) endIndex = arrayLastIndex;
 
-        let arrayLastIndex = pokemonsArray.length - 1;
-        if (arrayLastIndex < endIndex) endIndex = arrayLastIndex;
+            for (let i = startIndex; i <= endIndex; i++) {
+                let pokemon = pokemonsLoaded.pokemons[i];
 
-        for (let i = startIndex; i <= endIndex; i++) {
-            let pokemon = pokemonsLoaded.pokemons[i];
+                let sprite =
+                    pokemon.sprite || `${pageURL}/assets/img/no-image.jpg`;
 
-            $newPokemonCards += `
-            <div class="cards__card">
-                <img src="${pokemon.sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy">
-                <h3 class="cards__text cards__text--name">${pokemon.name}</h3>
-                <span class="cards__text cards__text--id">${pokemon.id}</span>
-            </div>
-        `;
+                //FIXME: algunos pokemons no tienen imagen, hay que validar si no tienen imagen y usar una imagen en caso de que no la tengan
+                $newPokemonCards += `
+                    <div class="cards__card">
+                        <img src="${sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy">
+                        <h3 class="cards__text cards__text--name">${pokemon.name}</h3>
+                        <span class="cards__text cards__text--id">${pokemon.id}</span>
+                    </div>
+                `;
+            }
+
+            $pokemonsContainer.innerHTML += $newPokemonCards;
+        } else {
+            if (pokemonsLoaded.pokemons.length === 0) {
+                console.log('no se encontraron pokemons');
+            } else {
+                console.log('No hay mas pokemons para cargar');
+            }
         }
-
-        $pokemonsContainer.innerHTML += $newPokemonCards;
     } catch (error) {
         console.log(error);
         cardsError = error;
@@ -113,8 +131,39 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
     } finally {
         loadingCards = false;
         $cardsLoader.classList.add('hidden');
-        //TODO: Crear aquí funcion para quitar el loader
     }
+};
+
+const clearPokemonsLoaded = () => {
+    const $pokemonsContainer = document.getElementById('pokemons-container');
+
+    $pokemonsContainer.innerHTML = '';
+
+    pokemonsLoaded = {
+        nextIndex: 0,
+        pokemons: [],
+    };
+
+    pokemonsFiltered = {
+        count: undefined,
+        pokemons: [],
+    };
+
+    loadingCards = false;
+    cardsError = false;
+};
+
+/* TODO: Funcion (filterPokemons) que debe filtrar segun parametro de busqueda, filtros y ordenar los pokemons resultantes */
+const filterPokemons = async () => {
+    const query = $searchInput.value;
+
+    pokemonsFiltered.pokemons = allPokemons.pokemons.filter((pokemon) => {
+        if (pokemon.name.toLowerCase().startsWith(query.toLowerCase())) {
+            return true;
+        }
+    });
+
+    await showMorePokemons(pokemonsFiltered, 20);
 };
 
 (async () => {
@@ -133,9 +182,33 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
 document.addEventListener('scroll', async (e) => {
     /* Inifinite scroll */
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight > scrollHeight - 30 && !loadingCards) {
-        await showMorePokemons(allPokemons, 20);
+    if (
+        scrollTop + clientHeight > scrollHeight - 30 &&
+        !loadingCards &&
+        !cardsError
+    ) {
+        if (
+            !pokemonsFiltered.pokemons ||
+            pokemonsFiltered.pokemons.length === 0
+        ) {
+            await showMorePokemons(allPokemons, 20);
+        } else {
+            await showMorePokemons(pokemonsFiltered, 20);
+        }
+        /* FIXME: agregar logica para que la fuente de los pokemon varie entre all y filtered segun sea el caso */
     }
 
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
+});
+
+$searchInput.addEventListener('keyup', async (e) => {
+    if (e.target.value === ' ') {
+        e.target.value = '';
+    } else if (e.target.value === '') {
+        clearPokemonsLoaded();
+        await showMorePokemons(allPokemons, 20);
+    } else {
+        clearPokemonsLoaded();
+        filterPokemons();
+    }
 });
