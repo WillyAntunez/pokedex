@@ -315,6 +315,21 @@ const areFiltersActive = () => {
     return false;
 };
 
+/* Resetea todos los filtros */
+const clearFilters = async () => {
+    $searchInput.value = '';
+    $orderBySelect.value = 'id';
+    $eggGroupSelect.value = 'default';
+    $colorsSelect.value = 'default';
+    $shapeSelect.value = 'default';
+    $habitatSelect.value = 'default';
+    $generationSelect.value = 'default';
+    $typeSelect.value = 'default';
+
+    clearPokemonsLoaded();
+    await showMorePokemons(allPokemons, 20);
+};
+
 const onChangeFilter = async (e) => {
     if (areFiltersActive()) {
         filterPokemons();
@@ -361,6 +376,15 @@ document.addEventListener('scroll', async (e) => {
     }
 
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
+});
+
+document.addEventListener('click', (e) => {
+    if (
+        e.target.matches('#clear-filters') ||
+        e.target.matches('#clear-filters *')
+    ) {
+        clearFilters();
+    }
 });
 
 $searchInput.addEventListener('keyup', onChangeFilter);
