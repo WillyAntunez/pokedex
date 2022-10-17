@@ -289,7 +289,7 @@ body {
 
 .filters .filters__filter .filters__select {
     width: 25.3rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-family: var(--font-gaming);
     color: var(--primary-red);
     border: 1px solid var(--black);

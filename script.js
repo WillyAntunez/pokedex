@@ -2,6 +2,12 @@
 
 const $searchInput = document.getElementById('search-input');
 const $cardsMessage = document.getElementById('cards-message');
+const $eggGroupSelect = document.getElementById('egg-group-select');
+const $colorsSelect = document.getElementById('colors-select');
+const $shapeSelect = document.getElementById('shape-select');
+const $habitatSelect = document.getElementById('habitat-select');
+const $generationSelect = document.getElementById('generation-select');
+const $typeSelect = document.getElementById('type-select');
 const $orderBySelect = document.getElementById('order-by');
 
 const pageURL = '.';
@@ -56,6 +62,20 @@ const getAllPokemons = async (
     );
 
     return data;
+};
+
+/* Carga las categorias de egg-group para los filtros y el objeto eggGroups */
+const getSelectFilter = async ($select, url) => {
+    const data = await fetchData(url);
+
+    data.results.forEach((group) => {
+        const $option = document.createElement('option');
+        $option.setAttribute('value', group.name);
+        $option.innerText = group.name;
+        $option.dataset.url = group.url;
+
+        $select.append($option);
+    });
 };
 
 /* Carga los datos especificos de cada pokemon de un array de pokemons y los retorna en un nuevo array  */
@@ -181,10 +201,74 @@ const clearPokemonsLoaded = () => {
 /* Obtiene el array de objetos pokemons filtrados y muestra la lista inicial */
 const filterPokemons = async () => {
     clearPokemonsLoaded();
+    loadingCards = true;
 
     const query = $searchInput.value;
 
     let newPokemons = [...allPokemons.pokemons];
+
+    const filterByUrl = async ($select) => {
+        const url = $select[$select.selectedIndex].dataset.url;
+
+        let pokemons = await fetchData(url);
+        pokemons = pokemons.pokemon_species;
+
+        newPokemons = newPokemons.filter((pokemon) => {
+            const pokemonIndex = pokemons.findIndex(
+                (newPokemon) => pokemon.name === newPokemon.name
+            );
+            if (pokemonIndex > -1) {
+                return true;
+            }
+        });
+    };
+
+    /* Egg group filter */
+    if ($eggGroupSelect.value !== 'default') {
+        await filterByUrl($eggGroupSelect);
+    }
+
+    /* color filter */
+    if ($colorsSelect.value !== 'default') {
+        await filterByUrl($colorsSelect);
+    }
+
+    /* shape filter */
+    if ($shapeSelect.value !== 'default') {
+        await filterByUrl($shapeSelect);
+    }
+
+    /* habitat filter */
+    if ($habitatSelect.value !== 'default') {
+        await filterByUrl($habitatSelect);
+    }
+
+    /* generation filter */
+    if ($generationSelect.value !== 'default') {
+        await filterByUrl($generationSelect);
+    }
+
+    /* Type filter */
+    if ($typeSelect.value !== 'default') {
+        const typeUrl = $typeSelect[$typeSelect.selectedIndex].dataset.url;
+        const result = await fetchData(typeUrl);
+
+        const typePokemons = result.pokemon.map((pokemon) => {
+            return {
+                name: pokemon.pokemon.name,
+                url: pokemon.pokemon.url,
+            };
+        });
+
+        newPokemons = newPokemons.filter((pokemon) => {
+            const pokemonIndex = typePokemons.findIndex(
+                (newPokemon) => pokemon.name === newPokemon.name
+            );
+            if (pokemonIndex > -1) {
+                return true;
+            }
+        });
+    }
 
     /* Search filter */
     if ($searchInput.value.length >= 1) {
@@ -209,19 +293,46 @@ const filterPokemons = async () => {
     }
 
     pokemonsFiltered.pokemons = newPokemons;
+
     await showMorePokemons(pokemonsFiltered, 20);
+    loadingCards = false;
 };
 
 /* Verifica si existen filtros activos */
 const areFiltersActive = () => {
-    if ($searchInput.value.length >= 1 || $orderBySelect.value === 'name') {
+    if (
+        $searchInput.value.length >= 1 ||
+        $orderBySelect.value === 'name' ||
+        $eggGroupSelect.value !== 'default' ||
+        $colorsSelect.value !== 'default' ||
+        $shapeSelect.value !== 'default' ||
+        $habitatSelect.value !== 'default' ||
+        $generationSelect.value !== 'default' ||
+        $typeSelect.value !== 'default'
+    ) {
         return true;
     }
     return false;
 };
 
+const onChangeFilter = async (e) => {
+    if (areFiltersActive()) {
+        filterPokemons();
+    } else {
+        clearPokemonsLoaded();
+        await showMorePokemons(allPokemons, 20);
+    }
+};
+
 /* Función anonima que se autoejecuta solo una vez al cargar la página para mostrar los primeros pokemons */
 (async () => {
+    await getSelectFilter($eggGroupSelect, `${API}/egg-group`);
+    await getSelectFilter($colorsSelect, `${API}/pokemon-color`);
+    await getSelectFilter($shapeSelect, `${API}/pokemon-shape`);
+    await getSelectFilter($habitatSelect, `${API}/pokemon-habitat`);
+    await getSelectFilter($generationSelect, `${API}/generation`);
+    await getSelectFilter($typeSelect, `${API}/type`);
+
     if (localStorage.getItem('ALL_POKEMONS')) {
         allPokemons = await JSON.parse(localStorage.getItem('ALL_POKEMONS'));
     } else {
@@ -242,39 +353,21 @@ document.addEventListener('scroll', async (e) => {
         !loadingCards &&
         !cardsError
     ) {
-        if (
-            !pokemonsFiltered.pokemons ||
-            pokemonsFiltered.pokemons.length === 0
-        ) {
-            await showMorePokemons(allPokemons, 20);
-        } else {
+        if (areFiltersActive()) {
             await showMorePokemons(pokemonsFiltered, 20);
+        } else {
+            await showMorePokemons(allPokemons, 20);
         }
     }
 
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
 });
 
-$searchInput.addEventListener('keyup', async (e) => {
-    if (e.target.value === ' ') {
-        e.target.value = '';
-    } else if (e.target.value === '') {
-        clearPokemonsLoaded();
-        await showMorePokemons(allPokemons, 20);
-    } else {
-        filterPokemons();
-    }
-});
-
-$orderBySelect.addEventListener('change', async (e) => {
-    /* si quiere ordenar por nombre o si quiere ordenar por id(default) pero quedan filtros activos */
-    if (
-        e.target.value === 'name' ||
-        (e.target.value === 'id' && areFiltersActive())
-    ) {
-        filterPokemons();
-    } else {
-        clearPokemonsLoaded();
-        await showMorePokemons(allPokemons, 20);
-    }
-});
+$searchInput.addEventListener('keyup', onChangeFilter);
+$orderBySelect.addEventListener('change', onChangeFilter);
+$eggGroupSelect.addEventListener('change', onChangeFilter);
+$colorsSelect.addEventListener('change', onChangeFilter);
+$shapeSelect.addEventListener('change', onChangeFilter);
+$habitatSelect.addEventListener('change', onChangeFilter);
+$generationSelect.addEventListener('change', onChangeFilter);
+$typeSelect.addEventListener('change', onChangeFilter);
