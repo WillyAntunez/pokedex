@@ -247,6 +247,7 @@ body {
     display: flex;
     cursor: pointer;
     width: fit-content;
+    user-select: none;
 }
 
 .filters .filters__text--highlighted {
@@ -262,6 +263,10 @@ body {
     border-left: 1.04rem solid transparent;
     border-right: 1.04rem solid transparent;
     border-bottom: 1.2rem solid var(--black);
+}
+
+.filters .filters__button--showhide.hidded .filters__triangle {
+    transform: rotate(180deg);
 }
 
 .filters .filters__form {
@@ -315,6 +320,7 @@ body {
     justify-content: center;
     width: fit-content;
     width: 100%;
+    user-select: none;
 }
 
 .filters .filters__button {

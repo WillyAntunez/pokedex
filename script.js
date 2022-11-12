@@ -9,6 +9,7 @@ const $habitatSelect = document.getElementById('habitat-select');
 const $generationSelect = document.getElementById('generation-select');
 const $typeSelect = document.getElementById('type-select');
 const $orderBySelect = document.getElementById('order-by');
+const $filtersForm = document.querySelector('.filters__form');
 
 const pageURL = '.';
 
@@ -33,6 +34,7 @@ let pokemonsLoaded = {
 
 let loadingCards = false;
 let cardsError = false;
+let areFiltersHidden = false;
 
 const fetchData = async (url) => {
     const res = await fetch(url);
@@ -48,6 +50,9 @@ const getPokemon = async (url) => {
         name: pokemon.name,
         sprite: pokemon.sprites.front_default,
         url: url,
+        types: pokemon.types.map((type) => type.type.name),
+        height: pokemon.height * 0.1,
+        weight: pokemon.weight * 0.220462,
     };
 };
 
@@ -384,6 +389,31 @@ document.addEventListener('click', (e) => {
         e.target.matches('#clear-filters *')
     ) {
         clearFilters();
+    }
+
+    if (
+        e.target.matches('.filters__button--showhide') ||
+        e.target.matches('.filters__button--showhide *')
+    ) {
+        if (!areFiltersHidden) {
+            document.querySelector(
+                '.filters__button .filters__text'
+            ).innerText = 'Show filters';
+            document
+                .querySelector('.filters__button--showhide')
+                .classList.add('hidded');
+            areFiltersHidden = true;
+        } else {
+            document.querySelector(
+                '.filters__button .filters__text'
+            ).innerText = 'Hide filters';
+            document
+                .querySelector('.filters__button--showhide')
+                .classList.remove('hidded');
+            areFiltersHidden = false;
+        }
+
+        $filtersForm.classList.toggle('hidden');
     }
 });
 
