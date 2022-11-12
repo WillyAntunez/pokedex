@@ -1,7 +1,9 @@
 'use strict';
 
-const $searchInput = document.getElementById('search-input');
 const $cardsMessage = document.getElementById('cards-message');
+
+/* Filters DOM elements */
+const $searchInput = document.getElementById('search-input');
 const $eggGroupSelect = document.getElementById('egg-group-select');
 const $colorsSelect = document.getElementById('colors-select');
 const $shapeSelect = document.getElementById('shape-select');
@@ -10,6 +12,50 @@ const $generationSelect = document.getElementById('generation-select');
 const $typeSelect = document.getElementById('type-select');
 const $orderBySelect = document.getElementById('order-by');
 const $filtersForm = document.querySelector('.filters__form');
+
+/* Pokemon selected DOM elements */
+const $selectedPokemonImg = document.querySelector(
+    '.pokemon .pokemon__screen .pokemon__sprite'
+);
+const $selectedPokemonId = document.querySelector(
+    '.pokemon .pokemon__screen .pokemon__text'
+);
+const $selectedPokemonName = document.querySelector(
+    '.pokemon .pokemon__text--name'
+);
+const $selectedPokemonType = document.querySelector(
+    '.pokemon .pokemon__text--type'
+);
+const $selectedPokemonHeight = document.querySelector(
+    '.pokemon .pokemon__text--height'
+);
+const $selectedPokemonWeight = document.querySelector(
+    '.pokemon .pokemon__text--weight'
+);
+const $selectedPokemonEggGroup = document.querySelector(
+    '.pokemon .pokemon__text--egg-group'
+);
+const $selectedPokemonAbilities = document.querySelector(
+    '.pokemon .pokemon__ul--habilities'
+);
+const $selectedPokemonCatchRate = document.querySelector(
+    '.pokemon .pokemon__text--catch-rate'
+);
+const $selectedPokemonShape = document.querySelector(
+    '.pokemon .pokemon__text--shape'
+);
+const $selectedPokemonAtk = document.querySelector(
+    '.pokemon .pokemon__stat--atk'
+);
+const $selectedPokemonHp = document.querySelector(
+    '.pokemon .pokemon__stat--hp'
+);
+const $selectedPokemonDef = document.querySelector(
+    '.pokemon .pokemon__stat--def'
+);
+const $selectedPokemonSpd = document.querySelector(
+    '.pokemon .pokemon__stat--spd'
+);
 
 const pageURL = '.';
 
@@ -45,6 +91,19 @@ const fetchData = async (url) => {
 /* Obtiene datos de un pokemon en específico, recibe una url y retorna un objeto con los datos simplificados del pokemon */
 const getPokemon = async (url) => {
     const pokemon = await fetchData(url);
+
+    const abilities = pokemon.abilities.map((ability) => ability.ability.name);
+    const attack = pokemon.stats.find(
+        (stat) => stat.stat.name === 'attack'
+    ).base_stat;
+    const hp = pokemon.stats.find((stat) => stat.stat.name === 'hp').base_stat;
+    const defense = pokemon.stats.find(
+        (stat) => stat.stat.name === 'defense'
+    ).base_stat;
+    const speed = pokemon.stats.find(
+        (stat) => stat.stat.name === 'speed'
+    ).base_stat;
+
     return {
         id: pokemon.id,
         name: pokemon.name,
@@ -53,6 +112,12 @@ const getPokemon = async (url) => {
         types: pokemon.types.map((type) => type.type.name),
         height: pokemon.height * 0.1,
         weight: pokemon.weight * 0.220462,
+        speciesUrl: pokemon.species.url,
+        abilities,
+        attack,
+        hp,
+        defense,
+        speed,
     };
 };
 
@@ -135,13 +200,13 @@ const showMorePokemons = async (pokemonsArray, quantity) => {
                 let pokemon = pokemonsLoaded.pokemons[i];
 
                 let sprite =
-                    pokemon.sprite || `${pageURL}/assets/img/no-image.jpg`;
+                    pokemon.sprite || `${pageURL}/assets/img/no-image.png`;
 
                 $newPokemonCards += `
                     <div class="cards__card">
-                        <img src="${sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy">
-                        <h3 class="cards__text cards__text--name">${pokemon.name}</h3>
-                        <span class="cards__text cards__text--id">${pokemon.id}</span>
+                        <img src="${sprite}" alt="${pokemon.name}" class="cards__sprite" loading="lazy" data-pokemon-id="${pokemon.id}">
+                        <h3 class="cards__text cards__text--name" data-pokemon-id="${pokemon.id}">${pokemon.name}</h3>
+                        <span class="cards__text cards__text--id"  data-pokemon-id="${pokemon.id}">${pokemon.id}</span>
                     </div>
                 `;
             }
@@ -383,7 +448,8 @@ document.addEventListener('scroll', async (e) => {
     // TODO: Agregar un boton para que se pueda volver arriba rapidamente
 });
 
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
+    /* Clear filters button click event */
     if (
         e.target.matches('#clear-filters') ||
         e.target.matches('#clear-filters *')
@@ -391,6 +457,7 @@ document.addEventListener('click', (e) => {
         clearFilters();
     }
 
+    /* Show and hide filters button click event */
     if (
         e.target.matches('.filters__button--showhide') ||
         e.target.matches('.filters__button--showhide *')
@@ -414,6 +481,93 @@ document.addEventListener('click', (e) => {
         }
 
         $filtersForm.classList.toggle('hidden');
+    }
+
+    /* Pokemon card click event */
+    if (
+        e.target.matches('.cards__card') ||
+        e.target.matches('.cards__card *')
+    ) {
+        const pokemonId = e.target.getAttribute('data-pokemon-id');
+        const pokemonInfo = pokemonsLoaded.pokemons.find(
+            (el) => el.id == pokemonId
+        );
+
+        const pokemonSpecies = await fetchData(pokemonInfo.speciesUrl);
+
+        const sprite =
+            pokemonInfo.sprite || `${pageURL}/assets/img/no-image.png`;
+        const egg_groups = pokemonSpecies.egg_groups.map((group) => group.name);
+        const $abilities = pokemonInfo.abilities
+            .map(
+                (ability) =>
+                    `<li class="pokemon__text pokemon__text--red">*${ability}</li>`
+            )
+            .join('');
+        const captureRate = pokemonSpecies.capture_rate;
+        const shape = pokemonSpecies.shape.name;
+
+        $selectedPokemonImg.src = sprite;
+        $selectedPokemonId.innerText = pokemonInfo.id;
+        $selectedPokemonName.innerText = pokemonInfo.name;
+        if (pokemonInfo.types.length === 1) {
+            $selectedPokemonType.innerText = pokemonInfo.types;
+        } else {
+            $selectedPokemonType.innerText = pokemonInfo.types.join(', ');
+        }
+        $selectedPokemonHeight.innerText = `${pokemonInfo.height.toFixed(2)}m`;
+        $selectedPokemonWeight.innerText = `${pokemonInfo.weight.toFixed(2)}kg`;
+        $selectedPokemonEggGroup.innerText = `${egg_groups.join(', ')}`;
+        $selectedPokemonAbilities.innerHTML = $abilities;
+        $selectedPokemonCatchRate.innerText = captureRate;
+        $selectedPokemonShape.innerText = shape;
+
+        $selectedPokemonAtk.innerHTML = `<div class="pokemon__text">
+                            <strong>ATK:</strong>
+                            <span class="pokemon__text--red">${
+                                pokemonInfo.attack
+                            } / 300</span>
+                        </div>
+                        <div class="pokemon__bar">
+                            <div style="width: ${
+                                (pokemonInfo.attack * 100) / 300
+                            }%"></div>
+                        </div>`;
+        $selectedPokemonHp.innerHTML = `<div class="pokemon__text">
+                            <strong>HP:</strong>
+                            <span class="pokemon__text--red">${
+                                pokemonInfo.hp
+                            } / 300</span>
+                        </div>
+                        <div class="pokemon__bar">
+                            <div style="width: ${
+                                (pokemonInfo.hp * 100) / 300
+                            }%"></div>
+                        </div>`;
+        $selectedPokemonDef.innerHTML = `<div class="pokemon__text">
+                            <strong>DEF:</strong>
+                            <span class="pokemon__text--red">${
+                                pokemonInfo.defense
+                            } / 300</span>
+                        </div>
+                        <div class="pokemon__bar">
+                            <div style="width: ${
+                                (pokemonInfo.defense * 100) / 300
+                            }%"></div>
+                        </div>`;
+        $selectedPokemonSpd.innerHTML = `<div class="pokemon__text">
+                            <strong>SPD:</strong>
+                            <span class="pokemon__text--red">${
+                                pokemonInfo.speed
+                            } / 300</span>
+                        </div>
+                        <div class="pokemon__bar">
+                            <div style="width: ${
+                                (pokemonInfo.speed * 100) / 300
+                            }%"></div>
+                        </div>`;
+
+        window.scroll({ top: 0, behavior: 'smooth' });
     }
 });
 

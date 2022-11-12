@@ -400,6 +400,7 @@ body {
     background-color: var(--white);
     position: relative;
     cursor: pointer;
+    user-select: none;
 }
 
 .cards .cards__sprite {
