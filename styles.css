@@ -472,3 +472,26 @@ body {
 .hidden {
     display: none !important;
 }
+
+@media screen and (max-width: 922px) {
+    .cards .cards__container {
+        padding: 0 1rem;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .cards .cards__card {
+        height: unset;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .cards .cards__container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (max-width: 492px) {
+    .cards .cards__container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
