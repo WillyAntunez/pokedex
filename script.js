@@ -76,8 +76,6 @@ let pokemonsLoaded = {
     pokemons: [],
 };
 
-/* TODO: crear objeto pokemonSelected para el pokemon que actualmente se muestra en la pokedex */
-
 let loadingCards = false;
 let cardsError = false;
 let areFiltersHidden = false;
@@ -444,8 +442,6 @@ document.addEventListener('scroll', async (e) => {
             await showMorePokemons(allPokemons, 20);
         }
     }
-
-    // TODO: Agregar un boton para que se pueda volver arriba rapidamente
 });
 
 document.addEventListener('click', async (e) => {
