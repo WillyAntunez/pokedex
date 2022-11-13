@@ -567,7 +567,19 @@ document.addEventListener('click', async (e) => {
                             }%"></div>
                         </div>`;
 
-        window.scroll({ top: 0, behavior: 'smooth' });
+        if (screen.width > 922) {
+            window.scroll({ top: 0, behavior: 'smooth' });
+        } else {
+            document.querySelector('.pokemon').classList.add('show');
+        }
+    }
+
+    /* Close mobile view */
+    if (
+        e.target.matches('.pokemon .pokemon__back') ||
+        e.target.matches('.pokemon .pokemon__back *')
+    ) {
+        document.querySelector('.pokemon').classList.remove('show');
     }
 });
 
